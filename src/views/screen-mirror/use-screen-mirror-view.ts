@@ -32,6 +32,7 @@ export function useScreenMirrorView() {
   const failed = computed(() => service.state.value === 'failed')
   const idle = computed(() => service.state.value === 'idle')
   const qualityMode = computed<'AUTO' | 'HD' | 'SMOOTH'>(() => service.qualityMode.value as 'AUTO' | 'HD' | 'SMOOTH')
+  const transportMode = computed<'WEBRTC' | 'WEBTRANSPORT'>(() => service.transportMode.value as 'WEBRTC' | 'WEBTRANSPORT')
 
   // --- Ref setters ---
   const setVideoRef = (el: Element | ComponentPublicInstance | null) => {
@@ -101,7 +102,7 @@ export function useScreenMirrorView() {
     paused: media.paused, muted: media.muted, isFullscreen: media.isFullscreen,
     togglePlay: media.togglePlay, toggleMute: media.toggleMute,
     toggleFullscreen: media.toggleFullscreen, takeScreenshot: media.takeScreenshot,
-    seconds: service.seconds, qualityMenuVisible: ref(false), qualityMode,
+    seconds: service.seconds, qualityMenuVisible: ref(false), qualityMode, transportMode,
     audioRequesting: service.audioRequesting, controlEnabled: service.controlEnabled,
     modeLabel: service.modeLabel,
     relaunchApp: service.relaunchApp, relaunchAppLoading: service.relaunchLoading,

@@ -572,8 +572,8 @@ export const replyNotificationGQL = `
 `
 
 export const updateScreenMirrorQualityGQL = `
-  mutation updateScreenMirrorQuality($mode: ScreenMirrorMode!) {
-    updateScreenMirrorQuality(mode: $mode)
+  mutation updateScreenMirrorQuality($mode: ScreenMirrorMode!, $transport: ScreenMirrorTransport) {
+    updateScreenMirrorQuality(mode: $mode, transport: $transport)
   }
 `
 

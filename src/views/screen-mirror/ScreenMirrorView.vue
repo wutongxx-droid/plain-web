@@ -17,6 +17,7 @@
         :show-loading="showLoading"
         :stop-service-loading="stopServiceLoading"
         :quality-mode="qualityMode"
+        :transport-mode="transportMode"
         :recording="recording"
         :recording-time="recordingTime"
         :control-enabled="controlEnabled"
@@ -73,6 +74,7 @@ const {
   audioRequesting,
   controlEnabled,
   qualityMode,
+  transportMode,
   seconds,
   recording,
   recordingTime,

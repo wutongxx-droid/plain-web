@@ -651,6 +651,7 @@ export const screenMirrorQualityGQL = `
   query {
     screenMirrorQuality {
       mode
+      transport
     }
   }
 `

@@ -19,6 +19,7 @@ export function useScreenMirrorService() {
   const state = ref<MirrorState>('idle')
   const seconds = ref(0)
   const qualityMode = ref('AUTO')
+  const transportMode = ref('WEBRTC')  // 新增传输模式
   const controlEnabled = ref(false)
   const audioRequesting = ref(false)
   let accessibilityEnabled = false
@@ -48,6 +49,7 @@ export function useScreenMirrorService() {
         return
       }
       if (data?.screenMirrorQuality?.mode) qualityMode.value = data.screenMirrorQuality.mode
+      if (data?.screenMirrorQuality?.transport) transportMode.value = data.screenMirrorQuality.transport
       accessibilityEnabled = data?.screenMirrorControlEnabled === true
       if (data?.screenMirrorState) {
         if (state.value === 'idle' || state.value === 'failed') { state.value = 'connecting'; retryCount = 0; connectFn() }
@@ -81,10 +83,18 @@ export function useScreenMirrorService() {
   onStopDone(() => { fullReset(); cleanupFn() })
   onStopError((e: GqlError) => toast(t(e.message), 'error'))
 
-  // Quality
+  // Quality and Transport
   let pendingMode: string | null = null
-  const setQualityMode = (mode: string) => { pendingMode = mode; updateQuality({ mode }) }
-  onQualityDone(() => { if (pendingMode) { qualityMode.value = pendingMode; pendingMode = null } })
+  let pendingTransport: string | null = null
+  const setQualityMode = (mode: string, transport?: string) => {
+    pendingMode = mode
+    pendingTransport = transport || null
+    updateQuality({ mode, transport: pendingTransport })
+  }
+  onQualityDone(() => {
+    if (pendingMode) { qualityMode.value = pendingMode; pendingMode = null }
+    if (pendingTransport) { transportMode.value = pendingTransport; pendingTransport = null }
+  })
 
   // Audio permission
   const requestAudioPermission = () => {
@@ -141,7 +151,7 @@ export function useScreenMirrorService() {
   const onAudioGranted = () => window.location.reload()
 
   return {
-    state, seconds, qualityMode, controlEnabled, audioRequesting, modeLabel,
+    state, seconds, qualityMode, transportMode, controlEnabled, audioRequesting, modeLabel,
     showLoading, relaunchLoading, stopLoading, setWebRTC, fetchState, start, stop,
     setQualityMode, requestAudioPermission, relaunchApp, toggleControl,
     onStreamReady, onDisconnected, onScreenMirroring, onSocketReconnect, onAudioGranted, deactivate,

@@ -34,6 +34,8 @@
         <template #trigger>
           <v-icon-button><i-material-symbols:more-vert /></v-icon-button>
         </template>
+        
+        <!-- Quality Mode -->
         <div class="dropdown-item" :class="{ active: qualityMode === 'AUTO' }" @click="setQuality('AUTO')">
           <i-material-symbols:check-rounded v-if="qualityMode === 'AUTO'" /><span v-else class="check-placeholder" />{{ $t('mirror_auto') }}
         </div>
@@ -42,6 +44,16 @@
         </div>
         <div class="dropdown-item" :class="{ active: qualityMode === 'SMOOTH' }" @click="setQuality('SMOOTH')">
           <i-material-symbols:check-rounded v-if="qualityMode === 'SMOOTH'" /><span v-else class="check-placeholder" />{{ $t('mirror_smooth') }}
+        </div>
+        <div class="dropdown-divider" />
+        
+        <!-- Transport Mode -->
+        <div class="dropdown-item dropdown-submenu-title">传输模式 / Transport</div>
+        <div class="dropdown-item" :class="{ active: transportMode === 'WEBRTC' }" @click="setTransport('WEBRTC')">
+          <i-material-symbols:check-rounded v-if="transportMode === 'WEBRTC'" /><span v-else class="check-placeholder" />WebRTC {{ transportMode === 'WEBRTC' ? '✓' : '' }}
+        </div>
+        <div class="dropdown-item" :class="{ active: transportMode === 'WEBTRANSPORT' }" @click="setTransport('WEBTRANSPORT')">
+          <i-material-symbols:check-rounded v-if="transportMode === 'WEBTRANSPORT'" /><span v-else class="check-placeholder" />WebTransport {{ transportMode === 'WEBTRANSPORT' ? '✓' : '' }}
         </div>
         <div class="dropdown-divider" />
         <div class="dropdown-item" @click="$emit('takeScreenshot'); moreMenuVisible = false">
@@ -83,6 +95,7 @@ defineProps<{
   showLoading: boolean
   stopServiceLoading: boolean
   qualityMode: 'AUTO' | 'HD' | 'SMOOTH'
+  transportMode: 'WEBRTC' | 'WEBTRANSPORT'
   recording: boolean
   recordingTime: string
   controlEnabled: boolean
@@ -95,7 +108,7 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'stopService'): void
-  (e: 'setQualityMode', mode: 'AUTO' | 'HD' | 'SMOOTH'): void
+  (e: 'setQualityMode', mode: 'AUTO' | 'HD' | 'SMOOTH', transport?: 'WEBRTC' | 'WEBTRANSPORT'): void
   (e: 'takeScreenshot'): void
   (e: 'toggleRecording'): void
   (e: 'toggleControl'): void
@@ -111,6 +124,11 @@ const moreMenuVisible = ref(false)
 function setQuality(mode: 'AUTO' | 'HD' | 'SMOOTH') {
   emit('setQualityMode', mode)
   moreMenuVisible.value = false
+}
+
+function setTransport(transport: 'WEBRTC' | 'WEBTRANSPORT') {
+  // Keep current quality mode, just change transport
+  emit('setQualityMode', qualityMode.value, transport)
 }
 
 function openKeyboardShortcuts() {
@@ -143,4 +161,12 @@ const mirrorShortcuts = [
   background: var(--md-sys-color-error); animation: blink 1s infinite;
 }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.dropdown-submenu-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface-variant);
+  padding: 8px 12px;
+  cursor: default;
+  &:hover { background: transparent; }
+}
 </style>
