@@ -1,43 +1,26 @@
 /**
- * Global test setup for vitest.
- * Sets up browser globals required by source code that run in happy-dom.
+ * Global test setup for Vitest Browser Mode (`unit` project).
+ *
+ * In Browser Mode (Playwright provider) tests run inside a real Chromium,
+ * so `localStorage`, `sessionStorage`, `BroadcastChannel`, `crypto` etc.
+ * are all native browser APIs.
+ *
+ * This setup runs in BOTH the Vite dev-server context (Node) AND the
+ * browser context (per test). Anything that touches `window` /
+ * `localStorage` / `sessionStorage` must be guarded with `typeof` checks
+ * because those globals don't exist on the Node side.
+ *
+ * We don't stub `BroadcastChannel` here. The cross-window-store tests
+ * are split into a separate Node project (`cws`) where module-level
+ * state can actually be reset; here we rely on real BroadcastChannel
+ * behavior, which works fine for the other suites that don't simulate
+ * multiple windows in one test.
  */
-import { vi } from 'vitest'
+import { beforeEach, vi } from 'vitest'
 
-// Provide a fully-compliant in-memory localStorage.
-// happy-dom v20 uses a Proxy that prevents property assignment and may not
-// expose all standard methods correctly — we replace it outright.
-const _store: Record<string, string> = {}
-const _mockLocalStorage = {
-  getItem: (key: string) => _store[key] ?? null,
-  setItem: (key: string, value: string) => { _store[key] = String(value) },
-  removeItem: (key: string) => { delete _store[key] },
-  clear: () => { Object.keys(_store).forEach((k) => delete _store[k]) },
-  get length() { return Object.keys(_store).length },
-  key: (index: number) => Object.keys(_store)[index] ?? null,
-}
-
-// Use Object.defineProperty to bypass Proxy restrictions on happy-dom window
-try {
-  Object.defineProperty(globalThis, 'localStorage', {
-    value: _mockLocalStorage,
-    writable: true,
-    configurable: true,
-  })
-} catch {
-  vi.stubGlobal('localStorage', _mockLocalStorage)
-}
-
-// Reset localStorage before each test
 beforeEach(() => {
-  Object.keys(_store).forEach((k) => delete _store[k])
+  if (typeof localStorage !== 'undefined') localStorage.clear()
+  if (typeof sessionStorage !== 'undefined') sessionStorage.clear()
 })
 
-// Stub window.__SERVER_TIME__ — not set in test env, so time-sync uses 0 offset
-;(window as any).__SERVER_TIME__ = undefined
-
-// Stub window.fileIdMap for file.ts
-window.fileIdMap = new Map()
-
-// Suppress console.info noise from gql-client request/response logging
 vi.spyOn(console, 'info').mockReturnValue(undefined)
