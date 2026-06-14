@@ -85,11 +85,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { openModal } from '@/components/modal'
 import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
 
-defineProps<{
+const props = defineProps<{
   mirroring: boolean
   idle: boolean
   showLoading: boolean
@@ -128,7 +128,7 @@ function setQuality(mode: 'AUTO' | 'HD' | 'SMOOTH') {
 
 function setTransport(transport: 'WEBRTC' | 'WEBTRANSPORT') {
   // Keep current quality mode, just change transport
-  emit('setQualityMode', qualityMode.value, transport)
+  emit('setQualityMode', props.qualityMode, transport)
 }
 
 function openKeyboardShortcuts() {
